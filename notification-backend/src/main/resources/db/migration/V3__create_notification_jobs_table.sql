@@ -1,0 +1,21 @@
+CREATE TABLE notification_jobs (
+                                   id            BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                   client_id     BIGINT       NOT NULL,
+                                   template_id   BIGINT,
+                                   channel       ENUM('EMAIL', 'SMS', 'IN_APP', 'WEBHOOK'),
+                                   recipient     VARCHAR(255) NOT NULL,
+                                   subject       VARCHAR(255),
+                                   body          TEXT         NOT NULL,
+                                   status        ENUM('PENDING','RUNNING','COMPLETED','RETRYING','FAILED') DEFAULT 'PENDING',
+                                   retry_count   INT          DEFAULT 0,
+                                   max_retries   INT          DEFAULT 4,
+                                   next_retry_at DATETIME,
+                                   scheduled_at  DATETIME,
+                                   error_message TEXT,
+                                   created_at    DATETIME     NOT NULL,
+                                   processed_at  DATETIME,
+                                   version       INT          DEFAULT 0,
+                                   FOREIGN KEY (client_id) REFERENCES clients(id),
+                                   INDEX idx_status_retry (status, next_retry_at),
+                                   INDEX idx_client_status (client_id, status)
+);
